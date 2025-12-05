@@ -52,25 +52,72 @@ export default function HighlightsPage() {
     try {
       setLoading(true);
       const preferences = getUserPreferences();
+      const config = getAppConfig();
       
-      // In synthetic mode or always, use mock articles
-      const response = await fetch('/api/health-news/articles');
-      const data = await response.json();
+      console.log('[Highlights] Config:', {
+        useSyntheticData: config.useSyntheticData,
+        searchAvailable: config.searchAvailable,
+        willUseWebSearch: !config.useSyntheticData && config.searchAvailable
+      });
       
-      // Filter articles based on user preferences
-      let filtered = data.articles as HealthArticle[];
-      if (preferences.interests.length > 0) {
-        // Simple keyword matching - in production, use better semantic matching
-        filtered = filtered.filter((article: HealthArticle) => {
-          const content = `${article.title} ${article.content}`.toLowerCase();
-          return preferences.interests.some(interest => 
-            content.includes(interest.replace('-', ' '))
-          );
+      let selectedArticles: HealthArticle[];
+      
+      // Use web search when synthetic data is off and search is available
+      if (!config.useSyntheticData && config.searchAvailable) {
+        // Build search query from user preferences
+        const interestsQuery = preferences.interests.length > 0
+          ? preferences.interests.join(' ')
+          : 'general health';
+        
+        const query = `latest health news about ${interestsQuery}`;
+        
+        // Search for articles using the articles search endpoint
+        const searchResponse = await fetch('/api/health-news/articles/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query,
+            limit: 6
+          })
         });
+        
+        if (!searchResponse.ok) {
+          throw new Error('Search failed, falling back to mock articles');
+        }
+        
+        const searchData = await searchResponse.json();
+        
+        // Convert search results to HealthArticle format
+        selectedArticles = searchData.sources.map((source: any, idx: number) => ({
+          id: idx + 1000, // Use high IDs to avoid conflicts
+          title: source.title,
+          content: source.content || source.summary || '',
+          source: source.url,
+          category: preferences.interests[0] || 'general',
+          publishedAt: new Date().toISOString(),
+          imageUrl: undefined
+        }));
+      } else {
+        // Use mock articles in synthetic mode
+        const response = await fetch('/api/health-news/articles');
+        const data = await response.json();
+        
+        // Filter articles based on user preferences
+        let filtered = data.articles as HealthArticle[];
+        if (preferences.interests.length > 0) {
+          // Simple keyword matching
+          filtered = filtered.filter((article: HealthArticle) => {
+            const content = `${article.title} ${article.content}`.toLowerCase();
+            return preferences.interests.some(interest => 
+              content.includes(interest.replace('-', ' '))
+            );
+          });
+        }
+        
+        // Take top 6 articles
+        selectedArticles = filtered.slice(0, 6);
       }
       
-      // Take top 6 articles
-      const selectedArticles = filtered.slice(0, 6);
       setArticles(selectedArticles);
       setLoading(false);
       setShowResults(false);
@@ -81,6 +128,20 @@ export default function HighlightsPage() {
       }
     } catch (error) {
       console.error('Failed to load articles:', error);
+      
+      // Fallback to mock articles on error
+      try {
+        const response = await fetch('/api/health-news/articles');
+        const data = await response.json();
+        const selectedArticles = (data.articles as HealthArticle[]).slice(0, 6);
+        setArticles(selectedArticles);
+        if (selectedArticles.length > 0) {
+          summarizeArticles(selectedArticles);
+        }
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+      }
+      
       setLoading(false);
     }
   };

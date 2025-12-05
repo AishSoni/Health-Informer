@@ -49,16 +49,40 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
           ),
           
           // Links
-          a: ({ href, children }) => (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
-            >
-              {children}
-            </a>
-          ),
+          a: ({ href, children }) => {
+            // Check if this is a citation-style link [Source N]
+            const childText = String(children);
+            const isCitation = /^Source \d+$/.test(childText);
+            
+            if (isCitation && href && href.startsWith('#source-')) {
+              return (
+                <sup>
+                  <a
+                    href={href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const target = document.querySelector(href);
+                      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }}
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-800 no-underline transition-colors cursor-pointer"
+                  >
+                    [{children}]
+                  </a>
+                </sup>
+              );
+            }
+            
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+              >
+                {children}
+              </a>
+            );
+          },
           
           // Code blocks
           code: ({ className, children }) => {

@@ -7,6 +7,7 @@ export interface AppConfig {
   // Search Configuration
   searchProvider: string;
   searchApiKey: string;
+  searchAvailable: boolean;
   
   // LLM Configuration
   llmProvider: string;
@@ -98,6 +99,7 @@ export function getAppConfig(): AppConfig {
     useSyntheticData,
     searchProvider,
     searchApiKey,
+    searchAvailable: isSearchAvailable({ useSyntheticData, searchProvider, searchApiKey, llmProvider, llmApiKey, llmApiUrl, llmModel, embeddingProvider, embeddingApiKey, embeddingModel, embeddingApiUrl, searchAvailable: false }),
     llmProvider,
     llmApiKey,
     llmApiUrl,
