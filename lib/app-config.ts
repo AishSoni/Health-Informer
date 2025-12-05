@@ -1,6 +1,9 @@
 import { API_PROVIDERS, DEFAULT_MODELS } from './config';
 
 export interface AppConfig {
+  // Mode Configuration
+  useSyntheticData: boolean;
+  
   // Search Configuration
   searchProvider: string;
   searchApiKey: string;
@@ -11,7 +14,7 @@ export interface AppConfig {
   llmApiUrl?: string;
   llmModel: string;
   
-  // Embedding Configuration
+  // Embedding Configuration (legacy, not used in Health Informer)
   embeddingProvider: string;
   embeddingApiKey: string;
   embeddingModel: string;
@@ -22,6 +25,9 @@ export interface AppConfig {
  * Get the current application configuration from environment variables
  */
 export function getAppConfig(): AppConfig {
+  // Check if synthetic data mode is enabled
+  const useSyntheticData = process.env.USE_SYNTHETIC_DATA === 'true';
+  
   const searchProvider = process.env.SEARCH_API_PROVIDER || API_PROVIDERS.SEARCH.FIRECRAWL;
   const llmProvider = process.env.LLM_PROVIDER || API_PROVIDERS.LLM.OPENAI;
   const embeddingProvider = process.env.EMBEDDING_PROVIDER || API_PROVIDERS.EMBEDDING.OPENAI;
@@ -82,6 +88,7 @@ export function getAppConfig(): AppConfig {
   }
   
   return {
+    useSyntheticData,
     searchProvider,
     searchApiKey,
     llmProvider,
@@ -97,26 +104,32 @@ export function getAppConfig(): AppConfig {
 
 /**
  * Check if the current configuration is valid (has required API keys)
+ * LLM keys are ALWAYS required. Search keys only required if not using synthetic data.
  */
 export function isConfigValid(config?: AppConfig): boolean {
   const appConfig = config || getAppConfig();
   
-  // Check search provider
-  if (!appConfig.searchApiKey) {
-    return false;
-  }
-  
-  // Check LLM provider
+  // LLM provider is ALWAYS required (except Ollama which is local)
   if (appConfig.llmProvider !== API_PROVIDERS.LLM.OLLAMA && !appConfig.llmApiKey) {
     return false;
   }
   
-  // Check embedding provider
-  if (appConfig.embeddingProvider !== API_PROVIDERS.EMBEDDING.OLLAMA && !appConfig.embeddingApiKey) {
+  // Search provider only required if NOT using synthetic data
+  if (!appConfig.useSyntheticData && !appConfig.searchApiKey) {
     return false;
   }
   
   return true;
+}
+
+/**
+ * Check if search functionality is available
+ */
+export function isSearchAvailable(config?: AppConfig): boolean {
+  const appConfig = config || getAppConfig();
+  
+  // Search available if not in synthetic mode AND has search API key
+  return !appConfig.useSyntheticData && !!appConfig.searchApiKey;
 }
 
 /**
