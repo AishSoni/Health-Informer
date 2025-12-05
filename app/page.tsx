@@ -19,7 +19,14 @@ export default function Home() {
     setPreferences(getUserPreferences());
     
     const config = getAppConfig();
-    setSearchAvailable(isSearchAvailable(config));
+    const searchAvail = isSearchAvailable(config);
+    
+    console.log('[Home Page Debug] searchAvailable:', searchAvail);
+    console.log('[Home Page Debug] config.useSyntheticData:', config.useSyntheticData);
+    console.log('[Home Page Debug] config.hasSearchApiKey:', !!config.searchApiKey);
+    console.log('[Home Page Debug] NEXT_PUBLIC_SEARCH_AVAILABLE:', process.env.NEXT_PUBLIC_SEARCH_AVAILABLE);
+    
+    setSearchAvailable(searchAvail);
   }, []);
 
   const handleOnboardingComplete = () => {

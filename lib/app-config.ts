@@ -25,8 +25,15 @@ export interface AppConfig {
  * Get the current application configuration from environment variables
  */
 export function getAppConfig(): AppConfig {
-  // Check if synthetic data mode is enabled
-  const useSyntheticData = process.env.USE_SYNTHETIC_DATA === 'true';
+  // Check if synthetic data mode is enabled.
+  // Prefer `NEXT_PUBLIC_USE_SYNTHETIC_DATA` for client-side visibility, fall back to server-only `USE_SYNTHETIC_DATA`.
+  const rawUseSynthetic = process.env.NEXT_PUBLIC_USE_SYNTHETIC_DATA ?? process.env.USE_SYNTHETIC_DATA ?? 'false';
+  const useSyntheticData = String(rawUseSynthetic).toLowerCase().trim() === 'true';
+  
+  // Debug logging (only in development)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[AppConfig] useSyntheticData:', useSyntheticData, '(raw:', rawUseSynthetic, ')');
+  }
   
   const searchProvider = process.env.SEARCH_API_PROVIDER || API_PROVIDERS.SEARCH.FIRECRAWL;
   const llmProvider = process.env.LLM_PROVIDER || API_PROVIDERS.LLM.OPENAI;
@@ -128,8 +135,39 @@ export function isConfigValid(config?: AppConfig): boolean {
 export function isSearchAvailable(config?: AppConfig): boolean {
   const appConfig = config || getAppConfig();
   
-  // Search available if not in synthetic mode AND has search API key
-  return !appConfig.useSyntheticData && !!appConfig.searchApiKey;
+  // Client-side: Use NEXT_PUBLIC_SEARCH_AVAILABLE flag (set manually based on your API keys)
+  // Server-side: Check actual searchApiKey presence
+  const isClient = typeof window !== 'undefined';
+  
+  if (isClient) {
+    // On client, we can't read server-only env vars like TAVILY_API_KEY
+    // So we rely on NEXT_PUBLIC_SEARCH_AVAILABLE flag
+    const searchAvailable = process.env.NEXT_PUBLIC_SEARCH_AVAILABLE === 'true';
+    const notInSyntheticMode = !appConfig.useSyntheticData;
+    const result = notInSyntheticMode && searchAvailable;
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[AppConfig CLIENT] useSyntheticData:', appConfig.useSyntheticData);
+      console.log('[AppConfig CLIENT] NEXT_PUBLIC_SEARCH_AVAILABLE:', process.env.NEXT_PUBLIC_SEARCH_AVAILABLE);
+      console.log('[AppConfig CLIENT] searchAvailable result:', result);
+    }
+    
+    return result;
+  }
+  
+  // Server-side: Check actual API key
+  const result = !appConfig.useSyntheticData && !!appConfig.searchApiKey;
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[AppConfig SERVER] isSearchAvailable:', {
+      useSyntheticData: appConfig.useSyntheticData,
+      hasSearchKey: !!appConfig.searchApiKey,
+      searchProvider: appConfig.searchProvider,
+      result
+    });
+  }
+  
+  return result;
 }
 
 /**
