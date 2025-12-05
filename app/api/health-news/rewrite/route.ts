@@ -11,13 +11,18 @@ Guidelines:
 - Make it interesting and accessible
 - Keep the rewrite to 3-4 paragraphs maximum
 - Focus on what matters most to readers
+- Use markdown formatting for better readability:
+  * **Bold** for important terms or key points
+  * Bullet points for lists
+  * Short paragraphs for easier reading
+  * Headings (##) if breaking into sections
 
 Original Article Title: {title}
 
 Original Content:
 {content}
 
-Write the simplified version now:`;
+Write the simplified version now (using markdown):`;
 
 export async function POST(request: Request) {
   try {

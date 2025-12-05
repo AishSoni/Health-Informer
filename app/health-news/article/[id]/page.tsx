@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, ArrowLeft, RefreshCw, Loader2, Sparkles, FileText } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { MarkdownRenderer } from '@/components/markdown-renderer';
 import { HealthArticle } from '@/lib/health-news/types';
 
 export default function ArticleDetailPage() {
@@ -234,21 +235,17 @@ export default function ArticleDetailPage() {
           </div>
 
           {/* Content */}
-          <div className="prose prose-lg dark:prose-invert max-w-none opacity-0 animate-fade-up [animation-duration:500ms] [animation-delay:400ms] [animation-fill-mode:forwards]">
+          <div className="opacity-0 animate-fade-up [animation-duration:500ms] [animation-delay:400ms] [animation-fill-mode:forwards]">
             {showRewritten && article.rewrittenContent ? (
               <div className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/10 dark:to-blue-900/10 border border-cyan-200 dark:border-cyan-800 rounded-xl p-8">
                 <div className="flex items-center gap-2 mb-4 text-cyan-700 dark:text-cyan-400">
                   <Sparkles className="w-5 h-5" />
                   <span className="font-semibold">AI-Simplified Version</span>
                 </div>
-                <div className="text-foreground whitespace-pre-line leading-relaxed">
-                  {article.rewrittenContent}
-                </div>
+                <MarkdownRenderer content={article.rewrittenContent} />
               </div>
             ) : (
-              <div className="text-foreground whitespace-pre-line leading-relaxed">
-                {article.content}
-              </div>
+              <MarkdownRenderer content={article.content} />
             )}
           </div>
 

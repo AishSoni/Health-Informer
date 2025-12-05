@@ -5,22 +5,33 @@ const SUMMARY_PROMPT = `Summarize this health news article for a general audienc
 
 You must respond with ONLY valid JSON in this exact format:
 {
-  "tldr": "A 2-sentence summary (max 280 characters total)",
+  "tldr": "One punchy sentence summarizing the main finding or news (max 120 characters)",
   "keyTakeaways": [
-    "First key takeaway (one short sentence)",
-    "Second key takeaway (one short sentence)",
-    "Third key takeaway (one short sentence)"
+    "First key insight in plain language",
+    "Second key insight in plain language", 
+    "Third key insight in plain language"
   ]
 }
 
-Rules:
-- TL;DR must be exactly 2 sentences, maximum 280 characters total
-- Provide exactly 3 key takeaways
-- Each takeaway should be one concise sentence
-- Use clear, jargon-free language
+Rules for TL;DR:
+- ONE sentence ONLY (not two)
+- Maximum 120 characters
+- Start with the most impactful finding
+- Use active voice and present tense when possible
+- Make it punchy and headline-like
+- Example: "Mediterranean diet reduces Alzheimer's risk by 40% in new study"
+
+Rules for Key Takeaways:
+- Exactly 3 takeaways
+- Each is one clear, short sentence (max 80 characters each)
 - Focus on practical implications for readers
-- Do not add any explanatory text outside the JSON
-- Ensure the JSON is properly formatted
+- Use simple, jargon-free language
+- Avoid medical terminology unless necessary
+
+Important:
+- Return ONLY the JSON object, no other text
+- Ensure valid JSON syntax
+- No markdown code blocks or explanations
 
 Article Title: {title}
 
@@ -63,6 +74,11 @@ export async function POST(request: Request) {
       // Validate the structure
       if (!summary.tldr || !Array.isArray(summary.keyTakeaways) || summary.keyTakeaways.length !== 3) {
         throw new Error('Invalid summary structure');
+      }
+      
+      // Validate TL;DR is concise (1 sentence, max 150 chars to allow some flexibility)
+      if (summary.tldr.length > 150) {
+        console.warn('TL;DR exceeds recommended length:', summary.tldr.length);
       }
     } catch {
       console.error('Failed to parse LLM response:', response);
