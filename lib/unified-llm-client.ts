@@ -127,8 +127,8 @@ export class UnifiedLLMClient {
       configuration: {
         baseURL: 'https://openrouter.ai/api/v1',
         defaultHeaders: {
-          'HTTP-Referer': 'https://narada-ai.com',
-          'X-Title': 'Narada AI',
+          'HTTP-Referer': 'https://health-informer.app',
+          'X-Title': 'Health Informer',
         },
       },
     });
@@ -140,8 +140,8 @@ export class UnifiedLLMClient {
       configuration: {
         baseURL: 'https://openrouter.ai/api/v1',
         defaultHeaders: {
-          'HTTP-Referer': 'https://narada-ai.com',
-          'X-Title': 'Narada AI',
+          'HTTP-Referer': 'https://health-informer.app',
+          'X-Title': 'Health Informer',
         },
       },
     });
@@ -154,8 +154,8 @@ export class UnifiedLLMClient {
       configuration: {
         baseURL: 'https://openrouter.ai/api/v1',
         defaultHeaders: {
-          'HTTP-Referer': 'https://narada-ai.com',
-          'X-Title': 'Narada AI',
+          'HTTP-Referer': 'https://health-informer.app',
+          'X-Title': 'Health Informer',
         },
       },
     });

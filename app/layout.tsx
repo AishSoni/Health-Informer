@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Narada AI - Deep Research Agent",
-  description: "Intelligent multi-source research powered by AI. Comprehensive web research using Firecrawl, Tavily, and advanced language models.",
+  title: "Health Informer - AI Health News Curator",
+  description: "Simplifying health news with AI-powered summaries and friendly explanations. Get your daily dose of health information made easy.",
 };
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  const theme = localStorage.getItem('narada-theme') || 'auto';
+                  const theme = localStorage.getItem('health-informer-theme') || 'auto';
                   if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
                   } else if (theme === 'light') {

@@ -1,16 +1,12 @@
 {
-  "name": "narada-ai-deep-research-agent",
-  "version": "0.1.0",
+  "name": "health-informer",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "check:deployment": "node scripts/check-deployment-readiness.js",
-    "benchmark": "tsx eval/benchmark-runner.ts",
-    "benchmark:quick": "tsx eval/benchmark-runner.ts factual_queries",
-    "test:firecrawl": "tsx eval/test-firecrawl-simple.ts"
+    "lint": "next lint"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.2.18",

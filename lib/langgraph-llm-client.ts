@@ -157,7 +157,7 @@ export class LangGraphLLMClient {
       headers: {
         'Authorization': `Bearer ${this.config.apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://narada-ai.com',
+        'HTTP-Referer': 'https://health-informer.app',
         'X-Title': 'Narada AI',
       },
       body: JSON.stringify({
@@ -262,7 +262,7 @@ export class LangGraphLLMClient {
       headers: {
         'Authorization': `Bearer ${this.config.apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://narada-ai.com',
+        'HTTP-Referer': 'https://health-informer.app',
         'X-Title': 'Narada AI',
       },
       body: JSON.stringify({
